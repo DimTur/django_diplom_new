@@ -1,0 +1,5 @@
+django
+pytz
+psycopg2
+djangorestframework
+djoser
