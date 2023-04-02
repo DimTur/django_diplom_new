@@ -24,7 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
                             default='buyer')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['type', 'last_name', 'first_name', 'patronymic', 'company', 'position']
 
     objects = CustomUserManager()
 
