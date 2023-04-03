@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="362aff3a-67d1-4ef9-9c7c-080b85caeaf5" name="Changes" comment="" />
+    <list default="true" id="362aff3a-67d1-4ef9-9c7c-080b85caeaf5" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/ordering_service/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/ordering_service/models.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

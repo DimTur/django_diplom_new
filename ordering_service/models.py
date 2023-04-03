@@ -94,7 +94,7 @@ class Contact(models.Model):
         verbose_name='Пользователь',
         related_name='contacts',
         blank=True,
-        on_delete=models.CASCADE()
+        on_delete=models.CASCADE
     )
     phone = models.CharField(
         max_length=12,
@@ -102,7 +102,7 @@ class Contact(models.Model):
     )
     address = models.ForeignKey(
         Address,
-        on_delete=models.SET_NULL(),
+        on_delete=models.SET_NULL,
         null=True,
         blank=True
     )
