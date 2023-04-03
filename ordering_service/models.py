@@ -34,12 +34,46 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class Address(models.Model):
+class Contact(models.Model):
     user = models.ForeignKey(
         CustomUser,
-        verbose_name='Адрес',
-        related_name='addressies',
+        verbose_name='Пользователь',
+        related_name='contacts',
         blank=True,
+        on_delete=models.CASCADE
+    )
+    phone = models.CharField(
+        max_length=12,
+        verbose_name='Телефон'
+    )
+    # address = models.ForeignKey(
+    #     Address,
+    #     on_delete=models.SET_NULL,
+    #     null=True,
+    #     blank=True
+    # )
+
+    def __str__(self):
+        return f'Информаци о контакте {self.user}'
+    #
+    # def clean(self):
+    #     existing_addresses = Address.objects.filter(user=self.user)
+    #     num_existing_addresses = existing_addresses.count()
+    #     if num_existing_addresses >= 5:
+    #         raise ValidationError(f"{self.user} у пользователя максимальное количество адресов")
+    #     #
+    #     # # Check that the address belongs to the user
+    #     # if self.address and self.address.user != self.user:
+    #     #     raise ValidationError("The selected address does not belong to the user")
+
+    class Meta:
+        verbose_name = 'Контакты'
+        unique_together = ('user',)
+
+
+class Address(models.Model):
+    contact = models.ForeignKey(
+        Contact,
         on_delete=models.CASCADE
     )
     city = models.CharField(
@@ -75,51 +109,14 @@ class Address(models.Model):
 
     def clean(self):
         # Получаем количество адресов, связанных с пользователем
-        existing_addresses = Address.objects.filter(user=self.user)
+        existing_addresses = Address.objects.filter(contact_user=self.contact.user)
         num_existing_addresses = existing_addresses.count()
 
         # если пользователь имеет уже 5 адресов, выдаем ошибку
         if num_existing_addresses >= 5:
-            raise ValidationError(f"{self.user} у пользователя максимальное количество адресов")
+            raise ValidationError(f"{self.contact.user} у пользователя максимальное количество адресов")
 
     class Meta:
         verbose_name = 'Адрес'
         verbose_name_plural = 'Список адресов'
-        unique_together = ('user',)
-
-
-class Contact(models.Model):
-    user = models.ForeignKey(
-        CustomUser,
-        verbose_name='Пользователь',
-        related_name='contacts',
-        blank=True,
-        on_delete=models.CASCADE
-    )
-    phone = models.CharField(
-        max_length=12,
-        verbose_name='Телефон'
-    )
-    address = models.ForeignKey(
-        Address,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-
-    def __str__(self):
-        return f'Информаци о контакте {self.user}'
-
-    def clean(self):
-        existing_addresses = Address.objects.filter(user=self.user)
-        num_existing_addresses = existing_addresses.count()
-        if num_existing_addresses >= 5:
-            raise ValidationError(f"{self.user} у пользователя максимальное количество адресов")
-        #
-        # # Check that the address belongs to the user
-        # if self.address and self.address.user != self.user:
-        #     raise ValidationError("The selected address does not belong to the user")
-
-    class Meta:
-        verbose_name = 'Контакты'
-        unique_together = ('user',)
+        unique_together = ('contact', )
