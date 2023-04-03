@@ -37,8 +37,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Address(models.Model):
     user = models.ForeignKey(
         CustomUser,
-        verbose_name='addressies',
-        related_name='contacts',
+        verbose_name='Адрес',
+        related_name='addressies',
         blank=True,
         on_delete=models.CASCADE
     )
@@ -91,7 +91,7 @@ class Address(models.Model):
 class Contact(models.Model):
     user = models.ForeignKey(
         CustomUser,
-        verbose_name='contacts',
+        verbose_name='Пользователь',
         related_name='contacts',
         blank=True,
         on_delete=models.CASCADE
