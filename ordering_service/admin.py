@@ -40,4 +40,4 @@ class ContactAdmin(admin.ModelAdmin):
 admin.site.register(Contact, ContactAdmin)
 admin.site.register(Address)
 
-admin.site.register(CustomUser, CustomUserAdmin, Address)
+admin.site.register(CustomUser, CustomUserAdmin)
