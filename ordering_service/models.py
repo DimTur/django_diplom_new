@@ -40,7 +40,7 @@ class Address(models.Model):
         verbose_name='Пользователь',
         related_name='contacts',
         blank=True,
-        on_delete=models.CASCADE()
+        on_delete=models.CASCADE
     )
     city = models.CharField(
         max_length=20,
