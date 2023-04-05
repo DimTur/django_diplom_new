@@ -29,15 +29,11 @@ class CustomUserAdmin(UserAdmin):
     ordering = ('email',)
 
 
-class AddressInline(admin.TabularInline):
-    model = Address
+class ContactInline(admin.TabularInline):
+    model = Contact
 
 
-class ContactAdmin(admin.ModelAdmin):
-    inlines = [AddressInline]
-
-
-admin.site.register(Contact, ContactAdmin)
 admin.site.register(Address)
+admin.site.register(Contact)
 
 admin.site.register(CustomUser, CustomUserAdmin)
