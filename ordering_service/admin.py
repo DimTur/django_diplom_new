@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser, Address, Contact
+from .models import CustomUser, Address, Contact, Shop, Category, Product, ProductInfo, Parameter, ProductInfoParameter
 
 
 class CustomUserAdmin(UserAdmin):
@@ -35,5 +35,11 @@ class ContactInline(admin.TabularInline):
 
 admin.site.register(Address)
 admin.site.register(Contact)
+admin.site.register(Shop)
+admin.site.register(Category)
+admin.site.register(Product)
+admin.site.register(ProductInfo)
+admin.site.register(Parameter)
+admin.site.register(ProductInfoParameter)
 
 admin.site.register(CustomUser, CustomUserAdmin)

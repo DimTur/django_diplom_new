@@ -1,8 +1,9 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from ordering_service.serializers import ContactSerializer, AddressSerializer
-from ordering_service.models import Contact, Address
+from ordering_service.serializers import ContactSerializer, AddressSerializer, ShopSerializer, CategorySerializer, \
+    ProductSerializer
+from ordering_service.models import Contact, Address, Shop, Category, Product, ProductInfo
 
 
 class ContactViewSet(ModelViewSet):
@@ -30,3 +31,23 @@ class AddressViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+class ShopViewSet(ModelViewSet):
+    queryset = Shop.objects.all()
+    serializer_class = ShopSerializer
+
+
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class ProductInfoViewSet(ModelViewSet):
+    queryset = ProductInfo.objects.all()
+    serializer_class = ProductInfoSerializer
