@@ -3,3 +3,4 @@ pytz
 psycopg2
 djangorestframework
 djoser
+django_filter

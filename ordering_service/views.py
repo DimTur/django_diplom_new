@@ -1,8 +1,10 @@
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from ordering_service.serializers import ContactSerializer, AddressSerializer, ShopSerializer, CategorySerializer, \
-    ProductSerializer
+    ProductSerializer, ProductInfoSerializer
 from ordering_service.models import Contact, Address, Shop, Category, Product, ProductInfo
 
 
@@ -51,3 +53,11 @@ class ProductViewSet(ModelViewSet):
 class ProductInfoViewSet(ModelViewSet):
     queryset = ProductInfo.objects.all()
     serializer_class = ProductInfoSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = {
+        'product__category': ['exact', ],
+        'shop': ['exact', ],
+        'price': ['exact', ],
+    }
+    search_fields = ['product', 'model', 'price']
+    ordering_fields = ['product', 'model', 'price']

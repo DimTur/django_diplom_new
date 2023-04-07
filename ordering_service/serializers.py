@@ -1,7 +1,8 @@
 from rest_framework import serializers
+from rest_framework.fields import SerializerMethodField
 
 from ordering_service.models import CustomUser, Contact, Address, Shop, Category, Product, ProductInfo, \
-    ProductInfoParameter, Parameter
+    ProductInfoParameter
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -54,30 +55,25 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Product
-        fields = '__all__'
-
-
-class ParameterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Parameter
-        fields = '__all__'
+        fields = ['name']
 
 
 class ProductInfoParameterSerializer(serializers.ModelSerializer):
-    parameter = ParameterSerializer
+    parameter = serializers.StringRelatedField()
 
     class Meta:
         model = ProductInfoParameter
-        fields = ['id', 'product_info', 'parameter', 'value']
+        fields = ['parameter', 'value']
 
 
 class ProductInfoSerializer(serializers.ModelSerializer):
-    shop = ShopSerializer(many=True)
-    product_info_parameters = ProductInfoParameterSerializer(many=True)
+    product = ProductSerializer(read_only=True)
+    shop = serializers.StringRelatedField()
+    product_info_parameters = ProductInfoParameterSerializer(read_only=True, many=True)
 
     class Meta:
         model = ProductInfo
         fields = ['id', 'product', 'shop', 'model', 'quantity', 'price', 'price_rrc', 'product_info_parameters']
-

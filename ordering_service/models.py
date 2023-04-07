@@ -98,7 +98,7 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=50, verbose_name='Имя товара')
     category = models.ForeignKey(Category, verbose_name='Категория',
-                                 related_name='products', blank=True)
+                                 related_name='products', on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
         return self.name
@@ -135,7 +135,7 @@ class Parameter(models.Model):
 
     class Meta:
         verbose_name = 'Название параметра'
-        verbose_name_plural = 'Список параметров'
+        verbose_name_plural = 'Параметры'
         ordering = ('-name',)
 
 
