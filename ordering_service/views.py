@@ -1,11 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ModelViewSet
 
 from ordering_service.serializers import ContactSerializer, AddressSerializer, ShopSerializer, CategorySerializer, \
-    ProductSerializer, ProductInfoSerializer
-from ordering_service.models import Contact, Address, Shop, Category, Product, ProductInfo
+    ProductSerializer, ProductInfoSerializer, OrderProductSerializer, OrderSerializer
+from ordering_service.models import Contact, Address, Shop, Category, Product, ProductInfo, OrderProduct, Order
 
 
 class ContactViewSet(ModelViewSet):
@@ -25,6 +25,7 @@ class ContactViewSet(ModelViewSet):
 class AddressViewSet(ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -38,6 +39,10 @@ class AddressViewSet(ModelViewSet):
 class ShopViewSet(ModelViewSet):
     queryset = Shop.objects.all()
     serializer_class = ShopSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class CategoryViewSet(ModelViewSet):
@@ -61,3 +66,23 @@ class ProductInfoViewSet(ModelViewSet):
     }
     search_fields = ['product', 'model', 'price']
     ordering_fields = ['product', 'model', 'price']
+
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class OrderProductViewSet(ModelViewSet):
+    queryset = OrderProduct.objects.all()
+    serializer_class = OrderProductSerializer
+
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+

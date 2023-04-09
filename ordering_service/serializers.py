@@ -2,20 +2,21 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
 from ordering_service.models import CustomUser, Contact, Address, Shop, Category, Product, ProductInfo, \
-    ProductInfoParameter
+    ProductInfoParameter, OrderProduct, Order
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = CustomUser
         fields = ['id', 'email', 'first_name']
 
 
 class AddressSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Address
-        fields = ['id', 'user', 'city', 'street', 'house',
-                  'structure', 'building', 'apartment']
+        fields = ['id', 'user', 'city', 'street', 'house', 'structure', 'building', 'apartment']
 
     def create(self, validated_data):
         user = validated_data['user']
@@ -43,12 +44,14 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 class ShopSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Shop
         fields = ['id', 'name']
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
         fields = ['id', 'name', 'shops']
@@ -77,3 +80,17 @@ class ProductInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductInfo
         fields = ['id', 'product', 'shop', 'model', 'quantity', 'price', 'price_rrc', 'product_info_parameters']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'created_at', 'status', 'contact']
+
+
+class OrderProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = OrderProduct
+        fields = ['id', 'user', 'order', 'product_info', 'quantity']
