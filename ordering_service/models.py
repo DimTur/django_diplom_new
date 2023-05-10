@@ -3,23 +3,13 @@ from django.db import models
 
 from ordering_service.managers import CustomUserManager
 
-USER_TYPE_CHOICES = (
-    ('shop', 'Магазин'),
-    ('buyer', 'Покупатель'),
-)
-
-STATE_CHOICES = (
-    ('basket', 'Статус корзины'),
-    ('new', 'Новый'),
-    ('confirmed', 'Подтвержден'),
-    ('assembled', 'Собран'),
-    ('sent', 'Отправлен'),
-    ('delivered', 'Доставлен'),
-    ('canceled', 'Отменен'),
-)
-
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    USER_TYPE_CHOICES = (
+        ('shop', 'Магазин'),
+        ('buyer', 'Покупатель'),
+    )
+
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -31,7 +21,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     type = models.CharField(verbose_name='Тип пользователя', choices=USER_TYPE_CHOICES, max_length=5, default='buyer')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['type', 'last_name', 'first_name', 'patronymic', 'company', 'position']
+    REQUIRED_FIELDS = ['type', 'last_name', 'first_name', 'patronymic', 'company', 'position', 'is_active']
 
     objects = CustomUserManager()
 
@@ -39,30 +29,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
-class Address(models.Model):
-    user = models.ForeignKey(CustomUser, verbose_name='Пользователь', related_name='addressies',
-                             on_delete=models.CASCADE)
-    city = models.CharField(max_length=20, verbose_name='Город')
-    street = models.CharField(max_length=80, verbose_name='Улица')
-    house = models.CharField(max_length=10, verbose_name='Дом')
-    structure = models.CharField(max_length=10, verbose_name='Корпус', blank=True)
-    building = models.CharField(max_length=10, verbose_name='Строение', blank=True)
-    apartment = models.CharField(max_length=10, verbose_name='Квартира', blank=True)
-
-    def __str__(self):
-        return f'{self.city}, {self.street}, {self.house}'
-
-    class Meta:
-        verbose_name = 'Адрес'
-        verbose_name_plural = 'Адреса'
-
-
 class Contact(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name='Пользователь', related_name='contacts',
                              on_delete=models.CASCADE)
     phone = models.CharField(max_length=12, verbose_name='Телефон')
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL,
-                                null=True, blank=True)
 
     def __str__(self):
         return f'Информаци о контакте {self.user}'
@@ -73,12 +43,31 @@ class Contact(models.Model):
         unique_together = ('user',)
 
 
+class Address(models.Model):
+    city = models.CharField(max_length=20, verbose_name='Город')
+    street = models.CharField(max_length=80, verbose_name='Улица')
+    house = models.CharField(max_length=10, verbose_name='Дом')
+    structure = models.CharField(max_length=10, verbose_name='Корпус', blank=True)
+    building = models.CharField(max_length=10, verbose_name='Строение', blank=True)
+    apartment = models.CharField(max_length=10, verbose_name='Квартира', blank=True)
+    contact = models.ForeignKey(Contact, verbose_name='Контакт', related_name='addressies', on_delete=models.CASCADE,
+                                blank=True)
+
+    def __str__(self):
+        return f'{self.city}, {self.street}, {self.house}'
+
+    class Meta:
+        verbose_name = 'Адрес'
+        verbose_name_plural = 'Адреса'
+
+
 class Shop(models.Model):
     user = models.ForeignKey(CustomUser, verbose_name='Пользователь', related_name='shops', blank=True,
                              on_delete=models.CASCADE)
     name = models.CharField(max_length=50, verbose_name='Название магазина', unique=True)
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
     filename = models.TextField(max_length=100, verbose_name='Имя файла', null=True, blank=True)
+    state = models.BooleanField(verbose_name='Открыт для получения заказов', default=True)
 
     def __str__(self):
         return self.name
@@ -128,11 +117,8 @@ class ProductInfo(models.Model):
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая розничная цена')
 
     class Meta:
-        verbose_name = 'Информация о товаре'
-        verbose_name_plural = 'Информация о товарах'
-        constraints = [
-            models.UniqueConstraint(fields=['product', 'shop'], name='unique_product_info'),
-        ]
+        verbose_name = 'Карточка товара'
+        verbose_name_plural = 'Карточки товаров'
 
 
 class Parameter(models.Model):
@@ -151,7 +137,7 @@ class ProductInfoParameter(models.Model):
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о товаре',
                                      related_name='product_info_parameters', on_delete=models.CASCADE)
     parameter = models.ForeignKey(Parameter, verbose_name='Название параметра',
-                                  related_name='product_info_parameters', on_delete=models.CASCADE, blank=True)
+                                  related_name='product_info_parameters', on_delete=models.CASCADE)
     value = models.CharField(max_length=100, verbose_name='Значение')
 
     class Meta:
@@ -161,16 +147,27 @@ class ProductInfoParameter(models.Model):
             models.UniqueConstraint(fields=['product_info', 'parameter'], name='unique_product_parameter'),
         ]
 
+    def __str__(self):
+        return f'{self.parameter}: {self.value}'
+
 
 class Order(models.Model):
+    STATE_CHOICES = (
+        ('basket', 'Статус корзины'),
+        ('new', 'Новый'),
+        ('confirmed', 'Подтвержден'),
+        ('assembled', 'Собран'),
+        ('sent', 'Отправлен'),
+        ('delivered', 'Доставлен'),
+        ('canceled', 'Отменен'),
+    )
+
     user = models.ForeignKey(CustomUser, verbose_name='Пользователь', related_name='orderies',
                              on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(verbose_name='Статус', choices=STATE_CHOICES, max_length=15)
+    status = models.CharField(verbose_name='Статус', choices=STATE_CHOICES, default='basket', max_length=15)
     contact = models.ForeignKey(Contact, verbose_name='Контакты покупателя',
                                 on_delete=models.CASCADE, blank=True, null=True)
-    address = models.ForeignKey(Address, verbose_name='Адрес', on_delete=models.CASCADE,
-                                blank=True, null=True)
 
     def __str__(self):
         return self.created_at
@@ -186,7 +183,7 @@ class OrderProduct(models.Model):
                               blank=True)
     product_info = models.ForeignKey(ProductInfo, verbose_name='Заказываемый товар', related_name='order_products',
                                      on_delete=models.CASCADE, blank=True)
-    quantity = models.PositiveIntegerField(verbose_name='Количество')
+    quantity = models.PositiveIntegerField(verbose_name='Количество', default=1)
 
     class Meta:
         verbose_name = 'Заказанный товар'

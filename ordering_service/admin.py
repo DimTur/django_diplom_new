@@ -44,5 +44,4 @@ admin.site.register(Parameter)
 admin.site.register(ProductInfoParameter)
 admin.site.register(Order)
 admin.site.register(OrderProduct)
-
 admin.site.register(CustomUser, CustomUserAdmin)
