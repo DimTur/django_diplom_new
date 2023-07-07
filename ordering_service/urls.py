@@ -10,7 +10,7 @@ from ordering_service.views import (
     GoodsImportAPIView,
     BasketViewSet,
     OrderView,
-    PartnerOrders,
+    PartnerOrdersSet,
 )
 
 router = DefaultRouter()
@@ -20,6 +20,7 @@ router.register('categories', CategoryViewSet)
 router.register('product', ProductViewSet)
 router.register('product_info', ProductInfoViewSet)
 router.register(r'basket', BasketViewSet)
+router.register('order/partner', PartnerOrdersSet)
 
 urlpatterns = [
     path(
@@ -48,6 +49,11 @@ urlpatterns = [
         name='basket-delete-product'
     ),
     path(
+      'basket/<int:pk>/update_product/<int:product_pk>/',
+      BasketViewSet.as_view({'put': 'update_product'}),
+      name='basket-update-product'
+    ),
+    path(
         'goods-import/',
         GoodsImportAPIView.as_view(),
         name='goods-import'
@@ -57,9 +63,4 @@ urlpatterns = [
         OrderView.as_view(),
         name='order'
     ),
-    path(
-        'order/partner/',
-        PartnerOrders.as_view(),
-        name='order-partner'
-    )
 ] + router.urls

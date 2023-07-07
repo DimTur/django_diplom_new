@@ -19,7 +19,9 @@ from ordering_service.serializers import (
     ProductSerializer,
     ProductInfoSerializer,
     OrderSerializer,
-    AddressSerializer
+    AddressSerializer,
+    OrderProductSerializer,
+    OrderNewSerializer
 )
 from ordering_service.models import (
     Contact,
@@ -33,6 +35,8 @@ from ordering_service.models import (
     Parameter,
     ProductInfoParameter
 )
+
+from .tasks import send_status_change_email
 
 
 class AddressViewSet(ModelViewSet):
@@ -298,16 +302,28 @@ class BasketViewSet(ModelViewSet):
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=True, methods=['put'])
+    def update_product(self, request, pk=None, product_pk=None):
+        order = self.get_object()
+        product = get_object_or_404(OrderProduct, pk=product_pk, order=order)
+        serializer = OrderProductSerializer(product, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderView(APIView):
     """
     Работа с заказами
     """
+    serializer_class = OrderNewSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         orders = Order.objects.filter(user=request.user).exclude(status='basket')
-        serializer = OrderSerializer(orders, many=True)
+        serializer = OrderNewSerializer(orders, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -330,10 +346,12 @@ class OrderView(APIView):
         return Response({'message': 'Заказ успешно обновлен'}, status=status.HTTP_200_OK)
 
 
-class PartnerOrders(APIView):
+class PartnerOrdersSet(ModelViewSet):
     """
     Получение заказов поставщиков
     """
+    queryset = Order.objects.all()
+    serializer_class = OrderNewSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -342,5 +360,23 @@ class PartnerOrders(APIView):
         else:
             orders = Order.objects.filter(order_products__product_info__shop__user_id=request.user.id
                                           ).exclude(status='basket').distinct()
-            serializer = OrderSerializer(orders, many=True)
+            serializer = OrderNewSerializer(orders, many=True)
             return Response(serializer.data)
+
+    """
+    Функция для редактирования заказа поставщиком.
+    Также использует celery для отправки email с изменением статуса заказа на почту покупателю.
+    """
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        current_status = instance.status
+        new_status = request.data.get('status')
+        if new_status and new_status != current_status:
+            recipient_email = instance.user.email
+            send_status_change_email.delay(current_status, new_status, recipient_email)
+
+        serializer.save()
+        return Response(serializer.data)

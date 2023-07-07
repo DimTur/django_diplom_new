@@ -10,7 +10,8 @@ from ordering_service.models import (
     ProductInfo,
     ProductInfoParameter,
     OrderProduct,
-    Order, Parameter
+    Order,
+    Parameter
 )
 
 
@@ -161,3 +162,20 @@ class OrderSerializer(serializers.ModelSerializer):
                 defaults={'order': basket, 'product_info': product['product_info'], 'quantity': product['quantity']}
             )
         return basket
+
+
+class OrderNewSerializer(serializers.ModelSerializer):
+    order_products = OrderProductSerializer(many=True)
+    contact = ContactSerializer(required=False)
+    total_price = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'created_at', 'status', 'contact', 'order_products', 'total_price']
+        read_only_fields = ['user', 'contact']
+
+    def get_total_price(self, obj):
+        total = 0
+        for order_product in obj.order_products.all():
+            total += order_product.quantity * order_product.product_info.price
+        return total

@@ -1,7 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, ReadOnlyPasswordHashField
-from django.forms import forms
-from rest_framework.exceptions import ValidationError
-
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser
 
 
