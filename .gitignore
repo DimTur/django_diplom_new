@@ -1,4 +1,5 @@
-Lib
-Scripts
+.idea/
+lib/
+Scripts/
+docker-compose.yml
 pyvenv.cfg
-db.sqlite3
