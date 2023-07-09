@@ -6,3 +6,4 @@ djoser
 django_filter
 celery
 redis
+drf-spectacular

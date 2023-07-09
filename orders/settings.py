@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django_filters',
 
     'ordering_service',
+
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +132,15 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day'
+    }
 }
 
 DJOSER = {
@@ -151,3 +162,11 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
 RECIPIENTS_EMAIL = ['manager@mysite.com']   # замените на свою почту
 DEFAULT_FROM_EMAIL = 'admin@mysite.com'  # замените на свою почту
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Settings for drf_spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Ordering_Service',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

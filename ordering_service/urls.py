@@ -13,6 +13,12 @@ from ordering_service.views import (
     PartnerOrdersSet,
 )
 
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView)
+
+
 router = DefaultRouter()
 router.register(r'my_contact', ContactViewSet)
 router.register('shops', ShopViewSet)
@@ -63,4 +69,7 @@ urlpatterns = [
         OrderView.as_view(),
         name='order'
     ),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ] + router.urls
