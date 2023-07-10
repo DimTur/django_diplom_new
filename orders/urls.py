@@ -7,4 +7,5 @@ urlpatterns = [
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('', include('ordering_service.urls')),
+    path('', include('social_django.urls', namespace='social')),
 ]

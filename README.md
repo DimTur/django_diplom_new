@@ -23,42 +23,40 @@ who can purchase goods for sale in the shop) and goods supplier.
 
 **Install dependencies**
 
-  pip install -r requirements.txt
+    pip install -r requirements.txt
 
 **Create a base and run migrations:**
 
-  manage.py makemigrations
+    manage.py makemigrations
 
-  manage.py migrate
+    manage.py migrate
 
-  manage.py createsuperuser
+    manage.py createsuperuser
   
 **Run Redis and Celery**
 
-  docker run -d -p 6379:6379 redis
+    docker run -d -p 6379:6379 redis
 
-  python -m celery -A orders worker -l info
+    python -m celery -A orders worker -l info
 
 **Run command**
 
-  python manage.py runserver
+    python manage.py runserver
 
-**Request documentation in Postman**
-
-  https://www.postman.com/docking-module-engineer-24329358/workspace/my-diplom
+**[Request documentation in Postman](https://www.postman.com/docking-module-engineer-24329358/workspace/my-diplom)**
 
 **Request documentation in drf-spectacular**
 
 Generate API schema with the CLI:
 
-  $ ./manage.py spectacular --color --file schema.yml
-  
-  $ docker run -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/schema.yml:/schema.yml swaggerapi/swagger-ui
+    $ ./manage.py spectacular --color --file schema.yml
+    
+    $ docker run -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/schema.yml:/schema.yml swaggerapi/swagger-ui
 
 use address:
 
-  /api/schema/
+    /api/schema/
 
-  /api/schema/swagger-ui/
+    /api/schema/swagger-ui/
 
-  /api/schema/redoc/
+    /api/schema/redoc/
