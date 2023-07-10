@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'ordering_service',
 
     'drf_spectacular',
+
+    'silk', # silk
 ]
 
 MIDDLEWARE = [
@@ -55,7 +57,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'social_django.middleware.SocialAuthExceptionMiddleware',   # python-solical-auth
+    # 'social_django.middleware.SocialAuthExceptionMiddleware',   # python-solical-auth
+    'silk.middleware.SilkyMiddleware',  # silk
 ]
 
 ROOT_URLCONF = 'orders.urls'
@@ -198,11 +201,13 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.user_details',
 )
 
+# Settings for Facebook
 SOCIAL_AUTH_FACEBOOK_KEY = 'replace_me_with_your_key'
 SOCIAL_AUTH_FACEBOOK_SECRET = 'replace_me_with_your_secret'
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {'fields': 'id, name, email',}
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 
+# Settings for Google
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'replace_me_with_your_key'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'replace_me_with_your_secret'

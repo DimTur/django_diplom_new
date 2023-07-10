@@ -7,3 +7,7 @@ django_filter
 celery
 redis
 drf-spectacular
+social-auth-app-django
+social-auth-core
+social-auth-app-django
+django-silk

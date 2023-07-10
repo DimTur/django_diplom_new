@@ -8,4 +8,5 @@ urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
     path('', include('ordering_service.urls')),
     path('', include('social_django.urls', namespace='social')),
+    path('silk/', include('silk.urls', namespace='silk')),
 ]
