@@ -56,31 +56,49 @@ class ContactViewSet(ModelViewSet):
     serializer_class = ContactSerializer
     permission_classes = [IsAuthenticated]
 
+    """
+    Получить весь список контактов пользователя
+    """
     def get_queryset(self):
         qs = super().get_queryset()
         qs = qs.filter(user=self.request.user)
         return qs
 
+    """
+    Добавление контакта/ов пользователя
+    """
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    """
+    Обновление контакта/ов пользователя
+    """
     def perform_update(self, serializer):
         contact = self.get_object()
         if contact.user != self.request.user:
             raise PermissionDenied("Вы не можете редактировать чужие данные")
         super().perform_update(serializer)
 
+    """
+    Удаление контакта/ов пользователя
+    """
     def perform_destroy(self, instance):
         if instance.user != self.request.user:
             raise PermissionDenied("Вы не можете удалить чужие данные!")
         super().perform_destroy(instance)
 
+    """
+    Получение списка адресов контакта пользователя
+    """
     @action(detail=False)
     def addressies(self, request, pk=None):
         contact = self.get_object()
         serializer = AddressSerializer(contact.addressies.all(), many=True)
         return Response(serializer.data)
 
+    """
+    Добавление нового адреса к контакту пользователя
+    """
     @action(detail=True, methods=['post'])
     def add_address(self, request, pk=None):
         contact = self.get_object()
@@ -96,6 +114,9 @@ class ContactViewSet(ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    """
+    Обновление адреса
+    """
     @action(detail=True, methods=['put'])
     def update_address(self, request, pk=None, address_pk=None):
         contact = self.get_object()
@@ -107,6 +128,9 @@ class ContactViewSet(ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    """
+    Удаление адреса
+    """
     @action(detail=True, methods=['delete'])
     def delete_address(self, request, pk=None, address_pk=None):
         contact = self.get_object()
@@ -123,17 +147,26 @@ class ShopViewSet(ModelViewSet):
     serializer_class = ShopSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    """
+    Добавление магазина
+    """
     def perform_create(self, serializer):
         if self.request.user.type != 'shop':
             raise PermissionDenied("У вас недостаточно прав!")
         serializer.save(user=self.request.user)
 
+    """
+    Обновление данных магазина
+    """
     def perform_update(self, serializer):
         shop = self.get_object()
         if shop.user != self.request.user:
             raise PermissionDenied("Вы не являетесь владельцем магазина!")
         super().perform_update(serializer)
 
+    """
+    Удаление магазина
+    """
     def perform_destroy(self, instance):
         if instance.user != self.request.user:
             raise PermissionDenied("Вы не являетесь владельцем магазина!")
@@ -148,16 +181,25 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    """
+    Добавление категории
+    """
     def perform_create(self, serializer):
         if self.request.user.type != 'shop':
             raise PermissionDenied("У вас недостаточно прав!")
         serializer.save(user=self.request.user)
 
+    """
+    Обновление данных категории
+    """
     def perform_update(self, serializer):
         if not self.request.user.is_staff:
             raise PermissionDenied("У вас недостаточно прав!")
         super().perform_update(serializer)
 
+    """
+    Удаление категории
+    """
     def perform_destroy(self, instance):
         if not self.request.user.is_staff:
             raise PermissionDenied("У вас недостаточно прав!")
@@ -166,22 +208,31 @@ class CategoryViewSet(ModelViewSet):
 
 class ProductViewSet(ModelViewSet):
     """
-    Работа с продуктом
+    Работа с продуктом (товаром)
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    """
+    Создание продукта (товара)
+    """
     def perform_create(self, serializer):
         if self.request.user.type != 'shop':
             raise PermissionDenied("У вас недостаточно прав!")
         serializer.save()
 
+    """
+    Обновление информации о продукте (товаре)
+    """
     def perform_update(self, serializer):
         if not self.request.user.is_staff:
             raise PermissionDenied("У вас недостаточно прав!")
         super().perform_update(serializer)
 
+    """
+    Удаление продукта (товара)
+    """
     def perform_destroy(self, instance):
         if not self.request.user.is_staff:
             raise PermissionDenied("У вас недостаточно прав!")
@@ -204,6 +255,9 @@ class ProductInfoViewSet(ModelViewSet):
     ordering_fields = ['product__name', 'model', 'price']
     permission_classes = [IsAuthenticatedOrReadOnly, IsShopOwner]
 
+    """
+    Создание карточки продукта (товара)
+    """
     def perform_create(self, serializer):
         if self.request.user.type != 'shop':
             raise PermissionDenied("У вас недостаточно прав!")
@@ -266,6 +320,9 @@ class BasketViewSet(ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
+    """
+    Просмотр корзины пользователя
+    """
     def get_queryset(self):
         if self.request.user.type == 'buyer':
             queryset = Order.objects.filter(user=self.request.user, status='basket')
@@ -273,16 +330,25 @@ class BasketViewSet(ModelViewSet):
             raise PermissionDenied("У вас недостаточно прав!")
         return queryset
 
+    """
+    Создание корзины пользователя
+    """
     def perform_create(self, serializer):
         if self.request.user.type != 'buyer':
             raise PermissionDenied("У вас недостаточно прав!")
         serializer.save()
 
+    """
+    Полное обновление корзины пользователя
+    """
     def perform_update(self, serializer):
         order = self.get_object()
         if order.user != self.request.user:
             raise PermissionDenied("Вы не являетесь владельцем заказа!")
 
+    """
+    Частичное обновление корзины пользователя
+    """
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
@@ -290,11 +356,17 @@ class BasketViewSet(ModelViewSet):
         serializer.save()
         return Response(serializer.data)
 
+    """
+    Удаление всей корзины пользователя
+    """
     def perform_destroy(self, instance):
         if instance.user != self.request.user:
             raise PermissionDenied("Вы не являетесь владельцем заказа!")
         super().perform_destroy(instance)
 
+    """
+    Удаление товара из корзины пользователя
+    """
     @action(detail=True, methods=['delete'])
     def delete_product(self, request, pk=None, product_pk=None):
         order = self.get_object()
@@ -302,6 +374,9 @@ class BasketViewSet(ModelViewSet):
         product.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    """
+    Обновление товара в корзине пользователя
+    """
     @action(detail=True, methods=['put'])
     def update_product(self, request, pk=None, product_pk=None):
         order = self.get_object()
@@ -321,11 +396,17 @@ class OrderView(APIView):
     serializer_class = OrderNewSerializer
     permission_classes = [IsAuthenticated]
 
+    """
+    Получения списков заказов пользователя
+    """
     def get(self, request):
         orders = Order.objects.filter(user=request.user).exclude(status='basket')
         serializer = OrderNewSerializer(orders, many=True)
         return Response(serializer.data)
 
+    """
+    Создание заказа пользователя из товаров в корзине
+    """
     def post(self, request):
         order_id = request.data.get('order_id')
         contact_id = request.data.get('contact_id')
@@ -354,6 +435,9 @@ class PartnerOrdersSet(ModelViewSet):
     serializer_class = OrderNewSerializer
     permission_classes = [IsAuthenticated]
 
+    """
+    Получение списка заказов, оформленных у поставщика
+    """
     def get(self, request):
         if self.request.user.type != 'shop':
             raise PermissionDenied("У вас недостаточно прав!")
